@@ -18,3 +18,12 @@ CREATE TABLE `measurement` (
   `m_id` INTEGER NOT NULL,
   FOREIGN KEY (`m_id`) REFERENCES `meter`(`id`) ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `user`
+
+CREATE TABLE `user` (
+  `id` INTEGER PRIMARY KEY,
+  `username` TEXT NOT NULL,
+  `password` TEXT NOT NULL,
+  `role` TEXT NOT NULL
+);
