@@ -1,9 +1,72 @@
 # emon-server
-RESTful services translating the flashing led on electricity or gas meter to JSON using a 555 timer chip, Python, NodeJS and a Raspberry PI
+RESTful service converting 'flashing lights' or 'pulsing magnets' on electricity and gas meter to JSON using the trustful 555 timer chip, Python, NodeJS and a Raspberry PI
 
-Summary
+## Summary
 
-A cheap 555 timer chip acting as Schmitt Trigger combined with a phototransistor or LDR is taped to the flashing LED/light on the electricity meter. See schematic and images in the hardware folder. The output of the 555 chip is connected to a GPIO pin on the Raspberry Pi. A Python script, running in the background, is triggered by the flashing led on the electricity meter. It calculates the actual power usage [Watt] and stores the event in a SQLite database for calculating [kWh]. 
-Using Node.js (also running on the RPI) a RESTful service is available to translate database information in to JSON for web or mobile. Also a pimatic plugin is available. 
+A cheap 555 timer chip acting as [Schmitt trigger](http://en.wikipedia.org/wiki/Schmitt_trigger) combined with a phototransistor or LDR is taped to the ‘flashing light’ or ‘pulsing magnet’ on the electricity meter. The output of the 555 timer chip is connected to one of the GPIO pins on the Raspberry Pi. A Python script (executing in the background) recording 555 events is calculating actual energy usage [e.g. Watt] every time the 555 is signaling and stores epochs in an SQLite3 database. From this, another Python script (executed from e.g. cron) generates all kinds of energy usage information (e.g. kWh or kWday or whatever).
+Using Node.js (running on the same Pi) all data is ‘RESTified’ enabling spreading out to the W3. To maintain privacy JSON web tokens are required every time the service is queried. Oh, and there is also a Pimatic plugin available.
+
+## Hardware
+
+![alt tag](https://github.com/dkroeske/emon-server/blob/master/hardware/emon.jpg)
+
+Reading the ‘flashing led’ requires a photo transistor taped to the energy meter. The 555 chip, acting as Schmitt trigger shapes the ‘flashing led/magnetic pulses’ to fast switching pulses without glitches (checkout the scoop images in the hardware folder).
+
+
+![alt tag](https://github.com/dkroeske/emon-server/blob/master/hardware/Measurements/T0004.PNG)
+
+
+The other nice feature of the 555 chip is it’s low impedance push-pull output stage making it possible to use thin and long cable connections to the Raspberry. Use a reed-contact for reading the ‘pulsing magnet’ on some gas meters.
+
+In my setup the 555 chip is connected to RPI’s GPIO-4 (other GPIO-pins are possible, see the pin definition in the emonLogger.py script). At every falling edge an epoch is written to the SQLite3 database.
+
+In my experiments the internal comparator and output stage of the 555 functions correctly when powered at 3.3 Volt (Raspberry PI). If you want to be sure buy the low-voltage version.
+
+## Python
+
+The script *emonLogger.py* is responsible for monitoring falling-edge events, attaching epochs to it and store this to an SQLite3 database. The script also calculates momentary power usage, e.g 246 Watt (not Wh!). The script is self explaining.
+
+From the epochs written to the database energy usage can be calculated, e.g kWh, Wmin of kWday. The script *emonCollectSec.py* does this by collecting epochs and grouping these to a timeframe set by the user. This script outputs to the same Sqlite3 database by (re)creating specific tables. E.g. ```bash emonCollectSec.py –i3600``` generates the *table emon_3600* with all epoch grouped by 3600 sec meaning kWh. ```bash emonCollectSec.py -i38400``` does the same for every day. This script can be called periodically from cron.
+
+The idea behind this workflow is to have data available when asked for meaning lightning fast response from the RESTful service. 
+## Database
+
+SQLite3 is used as database engine. The database lives in the file emon.db and is the common resource between the python scripts and the Node.js RESTful service. SQLite3 handles all the concurrency. The used database scheme is a simple one-to-many relationship. 
+
+```sql
+CREATE TABLE `meter` (
+  `id` INTEGER PRIMARY KEY,
+  `created` NUMERIC NOT NULL,
+  `description` TEXT NOT NULL,
+  `location` TEXT NOT NULL,
+  `ipu` INTEGER DEFAULT 0
+);
+
+INSERT INTO `meter` VALUES (21, datetime('now'),'Your address','Your location',0);
+
+DROP TABLE IF EXISTS `measurement`;
+
+CREATE TABLE `measurement` (
+  `id` INTEGER PRIMARY KEY,
+  `epoch` NUMERIC NOT NULL,
+  `m_id` INTEGER NOT NULL,
+  FOREIGN KEY (`m_id`) REFERENCES `meter`(`id`) ON UPDATE CASCADE
+);
+```
+
+## RESTful service
+
+*Node.js* is used to RESTify the database making it easy to interface sites, mobile apps or IoT systems. I’m using this to monitor my energy consumption in Pimatic (plugin here). The RESTful service makes it easy to share and/or collect energy usage data, e.g. compare your energy usage with friends.
+
+The RESTful service requires an authentication token when connecting. This token must be generated by calling the */api/login* service with valid *username/password* credentials. The generated (JSON web) token is constructed from a secret phrase, a username and an expire date. The generated token must be supplied in all other calls making the RESTFul service keeping data secure. Please note that at this moment the service is HTTP instead of HTTPS.
+
+
+
+
+
+
+
+
+
 
 
