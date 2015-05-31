@@ -4,7 +4,7 @@ RESTful service converting 'flashing lights' or 'pulsing magnets' on electricity
 ## Summary
 
 A cheap 555 timer chip acting as [Schmitt trigger](http://en.wikipedia.org/wiki/Schmitt_trigger) combined with a phototransistor or LDR is taped to the ‘flashing light’ or ‘pulsing magnet’ on the electricity meter. The output of the 555 timer chip is connected to one of the GPIO pins on the Raspberry Pi. A Python script (executing in the background) recording 555 events is calculating actual energy usage [e.g. Watt] every time the 555 is signaling and stores epochs in an SQLite3 database. From this, another Python script (executed from e.g. cron) generates all kinds of energy usage information (e.g. kWh or kWday or whatever).
-Using Node.js (running on the same Pi) all data is ‘RESTified’ enabling spreading out to the W3. To maintain privacy JSON web tokens are required every time the service is queried. Oh, and there is also a Pimatic plugin available.
+Using Node.js (running on the same Pi) all data is ‘RESTified’ enabling spreading out to the W3. To maintain privacy JSON web tokens are required every time the service is queried. Oh, and there is also a [Pimatic](http://www.pimatic.org/) plugin available ([here](https://github.com/dkroeske/pimatic-emon))
 
 ## Hardware
 
