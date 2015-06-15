@@ -35,7 +35,8 @@ var info = {
 
 	getipu: function(req, res) {
 		var interval = req.params.id;
-		var query = 'SELECT ipu, description FROM meter where id = 21;';
+		//var query = 'SELECT ipu, description FROM meter where id = 21;';
+		var query = 'SELECT * FROM meter;';
 		//var db = req.app.get('db');
 	
 		var db = new sqlite3.Database('../database/emon.db');			
@@ -44,8 +45,11 @@ var info = {
 			var results = [];
 			rows.forEach(function(item){
 				results.push({
-					ipu : item.ipu,
-					description: item.description
+					meterid: item.id,
+					created: item.created,
+					description: item.description,
+					location: item.location,
+					ipu: item.ipu
 				});
 			});
 			res.json(results);

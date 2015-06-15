@@ -9,7 +9,7 @@ import sys
 import os.path
 
 # Setup logger, using http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
@@ -61,7 +61,7 @@ def cbKWHLed(channel):
 
 		db.commit()		
 
-		logger.debug('Pulse detected, inserted epoch (%d) in db. ipu = %d W' % (now, int(round(ipu))) )
+		logger.info('Pulse detected, inserted epoch (%d) in db. ipu = %d W' % (now, int(round(ipu))) )
 
 	except lite.Error, err:
 		print 'error'
