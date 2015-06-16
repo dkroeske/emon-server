@@ -47,6 +47,7 @@ var info = {
 				results.push({
 					meterid: item.id,
 					created: item.created,
+					updated: item.updated,
 					description: item.description,
 					location: item.location,
 					ipu: item.ipu

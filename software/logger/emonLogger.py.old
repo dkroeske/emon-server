@@ -53,8 +53,8 @@ def cbKWHLed(channel):
 		db = lite.connect(dbfile);
 		cur = db.cursor();
 		
-		query = """UPDATE meter SET ipu=(?) WHERE id=(?)"""
-		cur.execute(query,(int(round(ipu)),int(21)))	
+		query = """UPDATE meter SET updated=datetime('now'), ipu=(?) WHERE id=(?)"""
+		cur.execute(query, (int(round(ipu)), int(21)))	
 
 		query = """INSERT INTO measurement (epoch, m_id) VALUES (?, ?)"""
 		cur.execute(query,(int(now),int(21)))
