@@ -1,4 +1,5 @@
 var sqlite3 = require('sqlite3').verbose();
+var path = require('path');
 
 var info = {
 
@@ -35,13 +36,33 @@ var info = {
 
 	getipu: function(req, res) {
 		var interval = req.params.id;
-		//var query = 'SELECT ipu, description FROM meter where id = 21;';
 		var query = 'SELECT * FROM meter;';
-		//var db = req.app.get('db');
-	
-		var db = new sqlite3.Database('../database/emon.db');			
+		var dbfile = req.app.get('dbfile');
+		var db = new sqlite3.Database(dbfile);			
 		db.all(query, function (err, rows) {
 			if(err) throw err;
+			
+			console.log(JSON.stringify(rows));
+			
+			var PSolar, PMain, PHouse, isEProducer;
+			rows.forEach(function(item) {
+				if(item.id == 21) PMain = item.ipu
+				
+				if(item.id == 24) PSolar = item.ipu
+				
+				console.info("****" + PSolar)			
+	
+//				if(PSolar >= PMeter) {
+//					PHouse = PSolar - PMeter
+//					isEProducer = YES
+//				} else {
+//				
+//					PHouse = Meter - PSolar
+//					isEProducer = NO
+//				}
+			});
+
+
 			var results = [];
 			rows.forEach(function(item){
 				results.push({

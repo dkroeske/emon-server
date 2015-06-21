@@ -25,6 +25,7 @@ app.set('username', settings.username);
 app.set('password', settings.password);
 app.set('webPort', settings.webPort);
 app.set('kwhCost', settings.kwhCost);
+app.set('dbfile', path.join(__dirname, settings.database));
 
 //Vangt alle exceptions af, proces moet wel opnieuw gestart worden.
 	process.on('uncaughtException', function (err) {
