@@ -1,8 +1,8 @@
 {
 	"secretkey" 	: "EmonEnergyMonitor-123454321AbCd-",
-	"username"	: "testuser",
+	"username"		: "testuser",
 	"password"  	: "testpassword",
-	"database"	: "../database/emon.db",
-	"webPort"	: "12345",
-	"kwhCost"	: "0.21"
+	"database"		: "../database/emon.db",
+	"webPort"		: "12345",
+	"kwhCost"       : "0.21"
 }

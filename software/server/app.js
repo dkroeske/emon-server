@@ -1,10 +1,11 @@
-var tokenValidator 	= require("./controller/tokenValidator.js");
 var express 		= require('express');
-var path		= require('path');
+var path			= require('path');
 var bodyParser 		= require('body-parser');
-var fs 			= require('fs');
-var moment		= require('moment');
-var app 		= express();
+var fs 				= require('fs');
+var moment			= require('moment');
+var routes_apiv1 	= require('./routes_apiv1');
+var routes_apiv2 	= require('./routes_apiv2');
+var app 			= express();
 
 // 
 // Override default log to terminal and/or to file
@@ -15,7 +16,7 @@ var now = moment(new Date()).format('MMMM Do YYYY, h:mm:ss a');
 console.log = function(msg){
 	log_file.write(require('util').format( '[' + now +'] ' + msg) + '\n');
 	// Uncomment if you want screen output
-	//log_stdout.write(require('util').format( '[' + now +'] ' + msg) + '\n');
+	log_stdout.write(require('util').format( '[' + now +'] ' + msg) + '\n');
 };
 
 // Read all app settings 
@@ -24,14 +25,13 @@ app.set('secretkey', settings.secretkey);
 app.set('username', settings.username);
 app.set('password', settings.password);
 app.set('webPort', settings.webPort);
-app.set('kwhCost', settings.kwhCost);
 app.set('dbfile', path.join(__dirname, settings.database));
 
 //Vangt alle exceptions af, proces moet wel opnieuw gestart worden.
 	process.on('uncaughtException', function (err) {
 	log_file.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
 	// Uncomment als je ook naar scherm wilt loggen
-	//log_stdout.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
+	log_stdout.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
 });
 
 // 
@@ -58,28 +58,15 @@ app.all('/api/*', function(req, res, next)
 	res.contentType('application/json');
 
 	next();
-
-	// // Eventuele opties 
-	// if(req.method == 'OPTIONS') {
-	// 	// Set option and exit. Uitbreiden
-	// 	res.status = 200;
-	// 	res.json({message:'OPTIONS SET'});
-	// } else {
-	// 	// handle request
-	// 	next();
-	// }
 });
 
-/*
- * /api/login is the only route without auth, /api/login generates API key
- */
-app.post('/api/login', require('./routes/auth.js').login);
+// Middleware statische bestanden (HTML, CSS, images)
+app.use(express.static(__dirname + '/public'));
 
-// All other /api/* API request routing via JWT validation
-app.all('/api/*', tokenValidator);
+// Routing with versions
+app.use('/apiv1', routes_apiv1);
+app.use('/apiv2', routes_apiv2);
 
-// Process all routes using express router
-app.use('/', require('./routes/index.js'));
 
 // Start server
 var port = process.env.PORT || app.get('webPort');
