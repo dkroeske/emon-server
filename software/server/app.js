@@ -16,7 +16,7 @@ var now = moment(new Date()).format('MMMM Do YYYY, h:mm:ss a');
 console.log = function(msg){
 	log_file.write(require('util').format( '[' + now +'] ' + msg) + '\n');
 	// Uncomment if you want screen output
-	log_stdout.write(require('util').format( '[' + now +'] ' + msg) + '\n');
+	//log_stdout.write(require('util').format( '[' + now +'] ' + msg) + '\n');
 };
 
 // Read all app settings 
@@ -31,7 +31,7 @@ app.set('dbfile', path.join(__dirname, settings.database));
 	process.on('uncaughtException', function (err) {
 	log_file.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
 	// Uncomment als je ook naar scherm wilt loggen
-	log_stdout.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
+	//log_stdout.write(require('util').format( '[' + now +'] '+ err.stack) + '\n');
 });
 
 // 

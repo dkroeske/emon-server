@@ -107,19 +107,23 @@ router.get('/ipu', function (req, res) {
     var db = new sqlite3.Database(dbfile);
     
     db.all(query, function (err, rows) {
-        if(err) throw err;
+        if(err) {
+            res.status(500);
+            res.json("Something bad happened");
+            return;
+        }
     
         console.log(JSON.stringify(rows));
 
         var results = [];
         rows.forEach(function(item){
-               results.push({
-                    meterid: item.id,
-                    created: item.created,
-                    updated: item.updated,
-                    description: item.description,
-                    location: item.location,
-                    ipu: item.ipu
+            results.push({
+                meterid: item.id,
+                created: item.created,
+                updated: item.updated,
+                description: item.description,
+                location: item.location,
+                ipu: item.ipu
             });
         });
         res.status(200);
@@ -171,6 +175,7 @@ router.get('/', function (req, res) {
         "description": "Project EMON API version 2. Welcome"
     });
 });
+
 
 
 module.exports = router;
