@@ -100,58 +100,75 @@ router.post('/login', function (req, res) {
 });
 
 
-// Example call
+// Instantaneous Power Usage
 router.get('/ipu', function (req, res) {
+    var query = 'SELECT * FROM meter;';
+    var dbfile = req.app.get('dbfile');
+    var db = new sqlite3.Database(dbfile);
+    
+    db.all(query, function (err, rows) {
+        if(err) throw err;
+    
+        console.log(JSON.stringify(rows));
 
-    // db lookup
-    //var query = "select created, updated,location, description, frequency, m_id " +
-    //    "from csgrip,measurement order by measurement.id desc limit 1;"
-    //var dbfile = req.app.get('dbfile');
-    //var db = new sqlite3.Database(dbfile);
-    //db.all(query, function (err, rows) {
-    //    if(err) throw err;
-    //        var results = [];
-    //        rows.forEach(function(item){
-    //            results.push({
-    //                created: item.created,
-    //                updated: item.updated,
-    //                description: item.description,
-    //                location: item.location,
-    //                frequency: item.frequency,
-    //                unit : "Hz"
-    //            });
-    //        });
-    //        res.json(results);
-    //    });
-    // db.close();
-    res.status(200);
-
-    var results = [];
-    results.push({
-        created: "2016FEB12-120001pm",
-        updated: "2016FEB12-120001pm",
-        description: "Dit is een beschrijvings",
-        location: "Breda, the Netherlands",
-        frequency: 50.0,
-        unit : "Hz"
-        },
-        {
-            created: "2016FEB12-120001pm",
-            updated: "2016FEB12-120001pm",
-            description: "Dit is een andere beschrijvings",
-            location: "Eindhoven, the Netherlands",
-            frequency: 51.9,
-            unit : "Hz"
+        var results = [];
+        rows.forEach(function(item){
+               results.push({
+                    meterid: item.id,
+                    created: item.created,
+                    updated: item.updated,
+                    description: item.description,
+                    location: item.location,
+                    ipu: item.ipu
+            });
         });
-    res.json(results);
+        res.status(200);
+        res.json(results);
+    });
+
+    db.close();
 });
+
+//
+router.get('/24h', function (req, res) {
+    res.json("SELECT (epoch) as time, ticks FROM emon_3600 where FROM_UNIXTIME(epoch, \'%Y-%m-%d\') = curdate();'")
+});
+        // get24h: function(req, res) {
+        //         var query = 'SELECT (epoch) as time, ticks FROM emon_3600 where ' +
+        //                                 'FROM_UNIXTIME(epoch, \'%Y-%m-%d\') = curdate();';
+        //         handleRequest(req, res, query);
+        // },
+
+
+        // getNhour: function(req, res) {
+        //         var interval = req.params.id;
+        //         var query = 'SELECT (epoch) as time, ticks FROM emon_3600 where ' +
+        //                                 'FROM_UNIXTIME(epoch, \'%Y-%m-%d\') > DATE_SUB(CURDATE(), INTERVAL ' + interval + ' HOUR);';
+        //         handleRequest(req, res, query);
+        // },
+
+
+        // get7d: function(req, res) {
+        //         var query = 'SELECT (epoch) as time, ticks FROM emon_86400 where ' +
+        //                                 'FROM_UNIXTIME(epoch, \'%Y-%m-%d\') > DATE_SUB(CURDATE(), INTERVAL 7 DAY);';
+        //         handleRequest(req, res, query);
+
+        // },
+
+
+        // getNday: function(req, res) {
+        //         var interval = req.params.id;
+        //         var query = 'SELECT (epoch) as time, ticks FROM emon_86400 where ' +
+        //                                 'FROM_UNIXTIME(epoch, \'%Y-%m-%d\') > DATE_SUB(CURDATE(), INTERVAL ' + interval + ' DAY);';
+        //         handleRequest(req, res, query);
+        // },
 
 
 // Fall back, display some info
 router.get('/', function (req, res) {
     res.status(200);
     res.json({
-        "description": "Project X API version 2. Welcome"
+        "description": "Project EMON API version 2. Welcome"
     });
 });
 
