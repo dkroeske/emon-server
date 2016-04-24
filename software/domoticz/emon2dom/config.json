@@ -1,0 +1,12 @@
+{
+  "username"	: "testuser",
+  "password"  	: "testpassword",
+  "url"         : "http://127.0.0.1",
+  "port"		: "12345",
+  "api"         : "apiv2",
+  "domoticz" : [
+    {"eid" : 21,  "did" : 131},
+    {"eid" : 24,  "did" : 132},
+    {"eid" : 27, "did" : 133}
+  ]
+}

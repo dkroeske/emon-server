@@ -113,7 +113,7 @@ router.get('/ipu', function (req, res) {
             return;
         }
     
-        console.log(JSON.stringify(rows));
+        //console.log(JSON.stringify(rows));
 
         var results = [];
         rows.forEach(function(item){

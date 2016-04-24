@@ -3,10 +3,11 @@
 ### node_modules en logs ###
 software/logger/emon.log
 software/server/logs/*
-software/server/node_modules
+###software/server/node_modules
 software/database/backup
 software/database/emon.db
 software/logger/*.log
+node_modules/
 
 ### Apple stuff
 .AppleDouble

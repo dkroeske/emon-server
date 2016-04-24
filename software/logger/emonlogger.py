@@ -10,13 +10,13 @@ import os.path
 import sys, getopt
 
 # Setup logger, using http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 cwd = os.path.dirname(__file__)
 logfile = os.path.realpath("{0}/emonlogger.log".format(cwd))
 handler = logging.FileHandler(logfile)
-handler.setLevel(logging.DEBUG)
+handler.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
