@@ -116,7 +116,7 @@ router.get('/ipu', function (req, res) {
         //console.log(JSON.stringify(rows));
 
         var results = [];
-        rows.forEach(function(item){
+        rows.forEach(function (item) {
             results.push({
                 meterid: item.id,
                 created: item.created,
@@ -134,8 +134,95 @@ router.get('/ipu', function (req, res) {
 });
 
 //
-router.get('/24h', function (req, res) {
-    res.json("SELECT (epoch) as time, ticks FROM emon_3600 where FROM_UNIXTIME(epoch, \'%Y-%m-%d\') = curdate();'")
+router.put('/e-energy', function (req, res) {
+    //MySQL
+    //var query = "SELECT (epoch) as time, ticks FROM emon_21_3600 where FROM_UNIXTIME(epoch, \'%Y-%m-%d\') = curdate();'"
+    //sqlite
+    var mid = req.body.mid || '21';
+    var nrDaysBack = req.body.nrDaysBack || '1';
+
+    var query = "SELECT (epoch) as time, ticks FROM emon_" + mid + 
+        "_3600 where date(epoch,\'unixepoch\') = date(\'now\',\'-" + nrDaysBack + " day\');"
+    console.log(query);
+
+    var dbfile = req.app.get('dbfile');
+    var db = new sqlite3.Database(dbfile);
+
+    db.all(query, function (err, rows) {
+        //console.log(JSON.stringify(rows));
+        if(!err) {
+            var respons = {};
+            respons.mid = mid;
+            respons.unit = "Wh";
+            respons.nrDayBacks = nrDaysBack;
+
+            var result = [];
+            rows.forEach(function (item) {
+                result.push({
+                    time   : item.time,
+                    energy : item.ticks
+                });
+            });
+            respons.values = result;
+
+            res.json(respons);
+            res.status = 200;
+        } else {
+            res.status(500);
+            res.json("Something bad happened");
+            return;
+        }
+    });
+
+    db.close;
+});
+
+//
+// 
+router.put('/e-power', function (req, res) {
+    //MySQL
+    //var query = "SELECT (epoch) as time, ticks FROM emon_21_3600 where FROM_UNIXTIME(epoch, \'%Y-%m-%d\') = curdate();'"
+    //sqlite
+    var mid = req.body.mid || '21';
+    var nrDaysBack = req.body.nrDaysBack || '1';
+
+    var query = "SELECT (epoch) as time, ticks FROM emon_" + mid + 
+        "_60 where date(epoch,\'unixepoch\') = date(\'now\',\'-" + nrDaysBack + " day\');"
+    console.log(query);
+
+    var dbfile = req.app.get('dbfile');
+    var db = new sqlite3.Database(dbfile);
+
+
+    db.all(query, function (err, rows) {
+        //console.log(JSON.stringify(rows));
+        if(!err) {
+            var respons = {};
+            respons.mid = mid;
+            respons.unit = "W";
+            respons.nrDayBacks = nrDaysBack;
+
+            var result = [];
+            rows.forEach(function (item) {
+                result.push({
+                    time   : item.time,
+                    energy : item.ticks
+                });
+            });
+            respons.values = result;
+
+            res.json(respons);
+            res.status = 200;
+        } else {
+            res.status(500);
+            res.json("Something bad happened");
+            return;
+        }
+    });
+
+    db.close;
+
+
 });
         // get24h: function(req, res) {
         //         var query = 'SELECT (epoch) as time, ticks FROM emon_3600 where ' +

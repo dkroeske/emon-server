@@ -94,9 +94,9 @@ def handleTransaction(dbfile, interval):
 			cursor.execute(query)
 
 			# Query hours and fill
-			query = """SELECT epoch, count(epoch) FROM measurement 
+			query = """SELECT epoch, count(epoch) FROM measurement WHERE m_id = %s
 				GROUP BY (epoch / %s)
-				ORDER BY epoch;""" % (interval)
+				ORDER BY epoch;""" % (m_id[0], interval)
 			#logger.info(query)
 
 			cursor.execute(query)
@@ -105,7 +105,7 @@ def handleTransaction(dbfile, interval):
 			for row in data :
 				query = ("""INSERT INTO %s (epoch, ticks, m_id) VALUES (%s, %s, %s)""" % 
 					(tableName, int(row[0]), int(row[1]), int(m_id[0])))
-				#logger.info(row)
+				#logger.info(query)
 				cursor.execute(query)
 			
 			connection.commit()
